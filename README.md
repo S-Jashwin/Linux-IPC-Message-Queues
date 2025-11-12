@@ -19,14 +19,79 @@ Write the C Program using Linux message queues API
 Execute the C Program for the desired output. 
 
 # PROGRAM:
-
 ## C program that receives a message from message queue and display them
 
+writer.c
+```
+// C Program for Message Queue (Writer Process) 
+#include <stdio.h> 
+#include <sys/ipc.h> 
+#include <sys/msg.h> 
 
+// structure for message queue 
+struct mesg_buffer { 
+	long mesg_type; 
+	char mesg_text[100]; 
+} message; 
+int main() 
+{ 	key_t key; 
+	int msgid;
+    // ftok to generate unique key 
+	key = ftok("progfile", 65); 
+	// msgget creates a message queue 
+	// and returns identifier 
+	msgid = msgget(key, 0666 | IPC_CREAT); 
+	message.mesg_type = 1; 
+	printf("Write Data : "); 
+	gets(message.mesg_text); 
+	// msgsnd to send message 
+	msgsnd(msgid, &message, sizeof(message), 0); 
+	// display the message 
+	printf("Data send is : %s \n", message.mesg_text); 
+	return 0; 
+}
+```
+reader.c
+```
+// C Program for Message Queue (Reader Process)
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
+// structure for message queue
+struct mesg_buffer {
+	long mesg_type;
+	char mesg_text[100];
+} message;
+int main()
+{
+	key_t key;
+	int msgid;
+    	// ftok to generate unique key
+	key = ftok("progfile", 65);
+	// msgget creates a message queue
+	// and returns identifier
+	msgid = msgget(key, 0666 | IPC_CREAT);
+	// msgrcv to receive message
+	msgrcv(msgid, &message, sizeof(message), 1, 0);
+	// display the message
+	printf("Data Received is : %s \n",
+			message.mesg_text);
 
-
+	// to destroy the message queue
+	msgctl(msgid, IPC_RMID, NULL);
+	return 0;
+}
+```
 ## OUTPUT
+
+<img width="1920" height="892" alt="image" src="https://github.com/user-attachments/assets/fa449232-3749-4f6c-8afd-a01fdd6c6eb1" />
+
+
+![WhatsApp Image 2025-11-12 at 10 52 19_6d1e2d9d](https://github.com/user-attachments/assets/8123b74f-2a29-4645-bf70-79f3bec34b8f)
+
+<img width="1920" height="892" alt="image" src="https://github.com/user-attachments/assets/4fc0328d-bfe0-41f3-a153-7a9e483d5211" />
+
 
 
 
